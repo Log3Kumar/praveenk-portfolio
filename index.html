@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Praveen Kumar K — Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    
+    .nav-transition { transition: all 350ms cubic-bezier(.2,.8,.2,1); }
+    /* <!-- Custom Css --> */
+    body{ background: radial-gradient(1200px 600px at 10% 0%, #172041 0, #0b1021 60%);}
+    section{ border-bottom: 2px solid;}
+
+     /* Overlay modal */
+     #modal {
+      display: none;
+      position: fixed;
+      top:0; left:0;
+      /* top:50%; left:50%;
+      transform: translate(-50%, -50%); */
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 9999;
+      text-align:center;
+      /* display: flex; */
+      align-items: center;
+      justify-content: center;
+      
+    }
+    .modal-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background:transparent;
+      padding:10px;
+      border-radius:8px;
+      max-width:100%;
+      max-height:100%;
+    }
+    #modal img {
+      max-width:100%;
+      max-height:80vh;
+      margin:10px;
+      border:4px solid #fff;
+      border-radius:8px;
+    }
+    /* Close button */
+    #closeBtn {
+      position:absolute;
+      top:8px; right:12px;
+      font-size:24px;
+      font-weight:bold;
+      color:transparent;
+      cursor:pointer;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    #closeBtn:hover { color:transparent; }
+
+    .thumb-strip {
+      display:flex;
+      overflow-x:auto;
+      gap:10px;
+      padding:10px;
+      background:#fff;
+      border-bottom:1px solid #ccc;
+    }
+    .thumb-strip img {
+      height:100px;
+      cursor:pointer;
+      border-radius:6px;
+      transition:transform .2s;
+    }
+    .thumb-strip img:hover { transform:scale(1.05); }
+
+
+    /* Photo Gallery Section */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      padding: 20px;
+    }
+    .gallery img {
+      width: 100%;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: transform .2s;
+    }
+    .gallery img:hover { transform: scale(1.05); }
+
+    /* Viewer overlay */
+    #viewerOverlay {
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.85);
+      z-index:9999;
+      
+      align-items:center;
+      justify-content:center;
+    }
+    .viewer-box {
+      position:relative;
+      max-width:90%;
+      max-height:90%;
+      text-align:center;
+    }
+    .viewer-box img {
+      max-width:100%;
+      max-height:80vh;
+      transform:scale(1);
+      transition:transform .2s ease;
+      border-radius:8px;
+    }
+    .viewer-close {
+      position:absolute;
+      top:-40px; right:0;
+      font-size:28px;
+      font-weight:bold;
+      color:#fff;
+      cursor:pointer;
+    }
+    .viewer-close:hover { color:#ff6b6b; }
+    .viewer-controls {
+      margin-top:10px;
+    }
+    .viewer-controls button {
+      margin:0 5px;
+      padding:6px 12px;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+      background:#fff;
+      color:#333;
+    }
+    .viewer-controls button:hover { background:#ddd; }
+    /* Arrows */
+    .arrow {
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:40px;
+      color:#fff;
+      cursor:pointer;
+      user-select:none;
+    }
+    .arrow.left { left:-50px; }
+    .arrow.right { right:-50px; }
+    .arrow:hover { color:#ff6b6b; }
+
+  @media screen and (max-width: 600px){
+    .arrow.left{ left:-20px;}
+    .arrow.right{ right:-20px;}
+  }
+
+
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50 text-gray-900 antialiased">
+
+  <!-- Header -->
+  <header id="header" class="fixed w-full z-40 top-0 backdrop-blur-md bg-white/60 border-b border-gray-200 nav-transition">
+    <div class="max-w-5xl mx-auto flex items-center justify-between p-4 md:p-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-slate-800 rounded flex items-center justify-center text-white font-semibold">LOG3</div>
+        <div>
+          <h1 class="text-sm font-semibold">Praveen Kumar K</h1>
+          <p class="text-xs text-gray-600">Email Marketing Specialist & Front-End Developer</p>
+        </div>
+      </div>
+
+      <!-- Desktop nav -->
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <a href="#about" class="hover:text-sky-600">About</a>
+        <a href="#skills" class="hover:text-sky-600">Skills</a>
+        <a href="#experience" class="hover:text-sky-600">Experience</a>
+        <a href="#projects" class="hover:text-sky-600">Projects</a>
+        <a href="#contact" class="text-white bg-sky-600 px-3 py-2 rounded">Contact</a>
+      </nav>
+
+      <!-- Mobile toggle -->
+      <button id="menuBtn" class="md:hidden p-2 rounded hover:bg-gray-100 nav-transition" aria-label="Toggle menu">
+        ☰
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden border-t border-gray-200 bg-white/80 backdrop-blur-md">
+      <div class="max-w-5xl mx-auto p-4 flex flex-col gap-3">
+        <a href="#about" class="py-2">About</a>
+        <a href="#skills" class="py-2">Skills</a>
+        <a href="#experience" class="py-2">Experience</a>
+        <a href="#projects" class="py-2">Projects</a>
+        <a href="#contact" class="py-2 text-sky-600 font-semibold">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="pt-28 max-w-5xl mx-auto px-4 md:px-6 lg:px-8">
+    <!-- About -->
+    <section id="about" class="py-12 md:py-20">
+      <h2 class="text-3xl md:text-4xl font-extrabold mt-4 mb-1 text-slate-200">Praveen Kumar K</h2>
+      <p class="text-slate-200 mb-2">Education: BCA - Bachelor of Computer Applications.</p>
+      <!-- <p>Email Marketing Specialist & Front-End Developer focused on building responsive, cross-client compatible email templates and landing pages.</p> -->
+      <ul class="grid sm:grid-cols-2 gap-2 text-sm text-gray-200">
+        <li>Email: <a href="mailto:YYYYYYYYY@gmail.com" class="text-sky-600">praveenkumar.log3@gmail.com</a></li>
+        <li>Mobile: +91 9738477506</li>
+        <li>Location: Bangalore, India</li>
+        <li>LinkedIn: <a href="#" class="text-sky-600">https://www.linkedin.com/in/praveen-kumar-k-286ba745/</a></li>
+      </ul>
+      <div class="border rounded-lg mt-12 mb-2 p-6 shadow-sm">
+        <h4 class="text-2xl font-bold mb-0 text-slate-200 text-center">Certification</h4>
+        <p class="text-slate-200 mt-2 mb-2">Salesforce Marketing Cloud Email Specialist(SFMC) - Udemy 
+            <span class="text-sky-600 float-right">
+
+                <a href="#" onclick="openModal(); return false;">Click to view</a>
+                <div id="modal" class="text-center">
+                  <div class="modal-content">
+                    <span id="closeBtn" onclick="closeModal()">×</span>
+                    <img src="SFMC-Course-Certificate-Praveen.png" alt="SFMC Certificate">
+                  </div>
+                </div>
+
+                <!-- <div id="modal" style="display:none; position:fixed; top:0; bottom:0; left:0; width:100%; height:100%; 
+                     background:rgba(0,0,0,0.7); text-align:center;">
+                  <img src="SFMC-Course-Certificate-Praveen.png" alt="SFMC Certificate" style="margin-top:10%; max-width:60%; border:4px solid #fff;">
+                </div> -->
+            </p>
+
+                
+                
+               
+                
+        <p class="text-slate-200 pt-6">Gained comprehensive knowledge of Email Studio, Automation Studio, Journey Builder, AMPscript, SQL queries, A/B testing, data segmentation and filtering, KPI tracking, analytics, report exporting, campaign goal setting, Mobile Studio, and Cloud Pages.</p>
+      </div>
+      <!-- <p class="text-slate-200 mt-2 mb-2">Certificate: Salesforce Marketing Cloud Email Specialist(SFMC) - Udemy</p> -->
+      <article class="mt-6 py-6 shadow-sm mb-4">
+        <h4 class="text-2xl font-bold mb-0 text-slate-200">Summary:</h4>
+        
+        <span class="ml-10 text-sm text-gray-200 space-y-2">
+            <p>Overall, I have 11+ years of professional experience, including 3 years as a Web Developer at ComX Softech Pvt Ltd and VIsualNet Pvt Ltd, and 8 years as an Email Marketing Specialist at ANI Technologies Pvt Ltd(Ola).</p>
+            <p>Results-driven Email Marketing Specialist with 8+ years of experience in designing and coding responsive HTML email
+                templates and developing high-performing campaign landing pages. Skilled in ensuring cross-client compatibility, optimizing
+                deliverability, and maintaining brand consistency. Experienced in campaign management and basic operations across multiple
+                ESPs, with a strong focus on marketing automation workflows.</p>
+            <p>Skilled in responsive design, cross-client compatibility, and front-end development (HTML5, CSS3, JavaScript). Experienced
+                in WordPress and Joomla for creating user-friendly, mobile-optimized websites.</p>
+        </span>
+      </article>
+    </section>
+
+    <!-- Skills -->
+    <section id="skills" class="py-14">
+      <h3 class="text-3xl font-bold mt-12 mb-4 text-slate-200 text-center">Skills</h3>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">HTML/HTML5</h4></div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">CSS/CSS3</h4></div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">AMPScript</h4></div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">SQL</h4></div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">JavaScript</h4></div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">Wordpress</h4></div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">Joomla</h4></div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">PHP</h4></div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm"><h4 class="font-semibold">MySql</h4></div>
+        
+        <!-- Add more skills here -->
+      </div>
+    </section>
+
+    <!-- Experience -->
+    <section id="experience" class="py-12">
+      <h3 class="text-3xl font-bold mt-12 mb-6 text-slate-200 text-center">Experience</h3>
+      <article class="bg-white border rounded-lg p-6 shadow-sm mb-4">
+        <h4 class="font-semibold">OLA - ANI Technologies Pvt. Ltd :: Lead HTML Developer <span class="text-sm text-gray-400 float-right">Sep 2016 – Apr 2025</span></h4>
+        <ul class="mt-4 list-disc ml-5 text-sm text-gray-700 space-y-2">
+            <li>Designed, coded, tested, and deployed responsive HTML email templates compatible with major email clients & devices.</li>
+            <li>Coded responsive, cross-client compatible mailers using HTML and CSS, optimized for both light and dark modes. Compatibility with all Email Clients (Gmail, Yahoo, Outlook, etc.)</li>
+            <li>Worked with ESPs such as Moengage, Salesforce Marketing Cloud (AMPscript & SQL).</li>
+            <li>Implemented personalized, data-driven campaigns using AMPscript and SQL queries for dynamic content.</li>
+            <li>Developed and automated email campaigns, ensuring compliance with SLAs, partner deadlines, and brand guidelines.</li>
+            <li>Tracked and optimized KPIs (open rates, CTR, conversions) to drive retargeting and ROI.</li>
+            <li>Design and develop visually engaging, responsive landing pages using modern web tools, ensuring cross-device compatibility and optimized performance for marketing campaigns.</li>
+            <li>Assisted in blog creation and maintenance as an admin.</li>
+            
+        </ul>
+      </article>
+      <article class="bg-white border rounded-lg p-6 shadow-sm mb-4">
+        <h4 class="font-semibold">VisualNet Pvt. Ltd :: Front-End Developer <span class="text-sm text-gray-400 float-right">Oct 2015 – Sep 2026</span></h4>
+        <ul class="mt-4 list-disc ml-5 text-sm text-gray-700 space-y-2">
+            <li>Creating responsive and user-friendly websites compatible with all devices.</li>
+            <li>Converting client requirements into functional websites using Web applications such as HTML, CSS, JavaScript, PHP, MySql.</li>
+            <li>Worked on CMS such as WordPress & Joomla.</li>
+            <li>Customer Support: Maintaining websites and implementing new features and updates as per client requests.</li>
+        </ul>
+      </article>
+      <article class="bg-white border rounded-lg p-6 shadow-sm mb-4">
+        <h4 class="font-semibold">ComX Softech Pvt. Ltd :: Web Developer <span class="text-sm text-gray-400 float-right">Apr 2013 – Oct 2015</span></h4>
+        
+        <ul class="mt-4 list-disc ml-5 text-sm text-gray-700 space-y-2">
+            <li>Custom Website Creation: Designed responsive websites tailored to client needs.</li>
+            <li>Client Support: Provided ongoing updates and feature additions.</li>
+            <li>Seamless Experience: Ensured optimal performance across all devices.</li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- Projects -->
+    <!-- <section id="projects" class="py-10">
+      <h3 class="text-3xl font-bold mb-4 text-slate-200 text-center">Projects</h3>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-white border rounded-lg p-4 shadow-sm">
+          <h4 class="font-semibold">Campaign: Re-engagement</h4>
+          <p class="text-sm text-gray-600">Designed a re-engagement email series with dynamic content.</p>
+        </div>
+        <div class="bg-white border rounded-lg p-4 shadow-sm">
+            <h4 class="font-semibold">Campaign Name: Birthday Wishes</h4>
+            <p class="text-sm text-gray-600">Designed a Birthday email on respective day with offers.</p>
+          </div>
+      </div>
+    </section> -->
+
+    
+    <section id="projects" class="py-12">
+      <h3 class="text-3xl font-bold mt-12 mb-4 text-slate-200 text-center">Projects & Email Templates</h3>
+      <ul class="mt-4 list-disc ml-5 text-sm text-gray-200 space-y-2">
+        <li><b>Welcome Journey</b> - Automated onboarding flow with multiple touchpoints. </li>
+        <li><b>Product Launch Campaign</b> - Multi-step email series with personalization.</li>
+        <li><b>Event Reminder Journey</b> - Multi-email flow: invitation – reminder – follow-up.</li>
+        <li><b>Newsletter Campaigns</b> - Designing responsive hybrid-coded templates, dynamic content, A/B testing subject lines, and tracking performance.</li>
+        <li><b>Survey Campaign</b> - Post-purchase or post-event surveys using triggered sends + Automation Studio.</li>
+        <li><b>Retargeting Campaign</b> - Target inactive users who haven’t logged in or purchased in 60 days.</li>
+        <li><b>Birthday Automation</b> - Triggered email with personalized greetings and coupon codes.</li> 
+    </ul>
+      <!-- Gallery thumbnails -->
+      <div class="grid md:grid-cols-1 gap-4">
+        <h4 class="text-2xl font-bold mt-8 text-slate-200 text-center">Some Example Email Templates</h4>
+        <div class="gallery">
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Emailer-Electric-01.png" alt="Sample 1" onclick="openViewer(0)">
+          </div>
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Emailer-Electric-Revolutionery.png" alt="Ola Electric Revolutionary" onclick="openViewer(1)">
+          </div>
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Ola-Money-Offers.png" alt="Ola Money Offers Mailer" onclick="openViewer(2)">
+          </div>
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Emailer-Anniversary-02.png" alt="Ola Employee Anniversary" onclick="openViewer(3)">
+          </div>
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/MyWay-Mailer.png" alt="My Way Mailer" onclick="openViewer(4)">
+          </div>
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Emailer-Safety-Ride-07.png" alt="Ola Safety Ride" onclick="openViewer(5)">
+          </div>
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Emailer-Ola-Corporate.png" alt="Ola Corporate" onclick="openViewer(6)">
+          </div>
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Licious-Mailer.png" alt="Licious Newsletter" onclick="openViewer(7)">
+          </div>
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Turbo-Mailer.png" alt="Turbo Newsletter" onclick="openViewer(8)">
+          </div> 
+          <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="templates/Emailer-Ola-Outstation.png" alt="Ola Outstation" onclick="openViewer(9)">
+          </div> 
+      </div>
+    </div>
+
+
+    <!-- Viewer -->
+    <div id="viewerOverlay">
+      <div class="viewer-box">
+        <span class="viewer-close" onclick="closeViewer()">×</span>
+        <span class="arrow left" onclick="prevImage()">❮</span>
+        <span class="arrow right" onclick="nextImage()">❯</span>
+        <img id="viewerImg" src="" alt="Large view">
+        <!-- <div class="viewer-controls">
+          <button onclick="zoomIn()">Zoom In +</button>
+          <button onclick="zoomOut()">Zoom Out −</button>
+          <button onclick="resetZoom()">Reset</button>
+        </div> -->
+      </div>
+    </div>
+
+<!--       
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <img src="">
+        </div>
+        <div class="bg-white border rounded-lg p-6 shadow-sm">
+            <p>Salesforce Marketing Cloud Email Specialist - Udemy</p>
+        </div> 
+    </div> -->
+    <!-- <div class="grid md:grid-cols-2 gap-4">
+        
+    </div> -->
+    </section>
+
+    <footer class="py-8 text-center text-sm text-gray-500">© <span id="year"></span> Praveen Kumar K</footer>
+  </main>
+
+  <!-- JS -->
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  </script>
+
+<script>
+    function openModal() {
+      document.getElementById('modal').style.display = 'block';
+    }
+    function closeModal(){
+      document.getElementById('modal').style.display='none';
+    }
+  </script>
+  
+  <script>
+  const images = [
+    "templates/Emailer-Electric-01.png",
+    "templates/Emailer-Electric-Revolutionery.png",
+    "templates/Ola-Money-Offers.png",
+    "templates/Emailer-Anniversary-02.png",
+    "templates/MyWay-Mailer.png",
+    "templates/Emailer-Safety-Ride-07.png",
+    "templates/Emailer-Ola-Corporate.png",
+    "templates/Licious-Mailer.png",
+    "templates/Turbo-Mailer.png",
+    "templates/Emailer-Ola-Outstation.png"
+  ];
+  let currentIndex = 0;
+  let scale = 1;
+  const viewer = document.getElementById('viewerOverlay');
+  const viewerImg = document.getElementById('viewerImg');
+
+  function openViewer(index){
+  currentIndex = index;
+  document.getElementById('viewerOverlay').style.display = 'flex'; // show overlay
+  loadImage();
+}
+
+function closeViewer(){
+  document.getElementById('viewerOverlay').style.display = 'none'; // hide overlay
+}
+  function loadImage(){
+    viewerImg.src = images[currentIndex];
+    scale=1;
+    viewerImg.style.transform='scale(1)';
+  }
+  function nextImage(){
+    currentIndex = (currentIndex+1) % images.length;
+    loadImage();
+  }
+  function prevImage(){
+    currentIndex = (currentIndex-1+images.length) % images.length;
+    loadImage();
+  }
+  function zoomIn(){
+    scale += 0.2;
+    viewerImg.style.transform='scale('+scale+')';
+  }
+  function zoomOut(){
+    if(scale>0.4){ scale -= 0.2; }
+    viewerImg.style.transform='scale('+scale+')';
+  }
+  function resetZoom(){
+    scale=1;
+    viewerImg.style.transform='scale(1)';
+  }
+
+  // Close when clicking outside
+  viewer.addEventListener('click', e=>{
+    if(e.target===viewer){ closeViewer(); }
+  });
+
+  // Zoom with mouse wheel
+  viewerImg.addEventListener('wheel', e=>{
+    e.preventDefault();
+    if(e.deltaY<0){ zoomIn(); } else { zoomOut(); }
+  });
+  </script>
+
+</body>
+</html>
